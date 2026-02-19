@@ -1,0 +1,5 @@
+# Development process templates (local only)
+process/
+
+# Claude Code local config
+.claude/
