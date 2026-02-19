@@ -24,5 +24,13 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     'react/prop-types': 'off',
   },
-  ignorePatterns: ['node_modules/', '.expo/', 'babel.config.js'],
+  ignorePatterns: ['node_modules/', '.expo/', 'babel.config.js', 'jest.config.js'],
+  overrides: [
+    {
+      files: ['tests/**/*.ts', 'tests/**/*.tsx'],
+      env: {
+        jest: true,
+      },
+    },
+  ],
 };
