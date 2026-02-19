@@ -3,3 +3,6 @@ process/
 
 # Claude Code local config
 .claude/
+
+# Temporary files
+.tmp/
