@@ -104,7 +104,7 @@ export default function DashboardScreen() {
                 <Button
                   mode="outlined"
                   icon="checkbox-marked-outline"
-                  onPress={() => router.push('/tasks' as never)}
+                  onPress={() => router.push('/task-management' as never)}
                   style={styles.actionButton}
                 >
                   Manage Tasks

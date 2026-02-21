@@ -96,19 +96,19 @@ export default function SettingsScreen() {
           title="Schedules"
           description="Configure monitoring schedules"
           left={(props) => <List.Icon {...props} icon="clock-outline" />}
-          onPress={() => router.push('/schedules' as never)}
+          onPress={() => router.push('/task-management/create-time-schedule' as never)}
         />
         <List.Item
           title="Tasks"
           description="Manage goal tasks"
           left={(props) => <List.Icon {...props} icon="checkbox-marked-outline" />}
-          onPress={() => router.push('/tasks' as never)}
+          onPress={() => router.push('/task-management' as never)}
         />
         <List.Item
           title="Success Thresholds"
           description="Define completion criteria"
           left={(props) => <List.Icon {...props} icon="trophy-outline" />}
-          onPress={() => router.push('/success-thresholds' as never)}
+          onPress={() => router.push('/task-management/success-threshold' as never)}
         />
       </List.Section>
 
