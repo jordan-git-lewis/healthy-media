@@ -27,13 +27,13 @@ export default function CalendarScreen() {
   useEffect(() => {
     loadMonth(currentYear, currentMonth);
     refreshToday();
-  }, []);
+  }, [currentMonth, currentYear, loadMonth, refreshToday]);
 
   // Refresh today on tab focus
   useFocusEffect(
     useCallback(() => {
       refreshToday();
-    }, [])
+    }, [refreshToday])
   );
 
   const handleDayPress = (date: string) => {
