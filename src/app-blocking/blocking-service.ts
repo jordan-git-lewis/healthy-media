@@ -1,6 +1,7 @@
 import { getDatabase } from '../database/database';
 import * as blockedAppRepository from '../database/repositories/blocked-app-repository';
 import * as overrideEventRepository from '../database/repositories/override-event-repository';
+import * as dailyRecordService from '../calendar-tracking/daily-record-service';
 import {
   updateBlockedApps,
   showBlockingOverlay,
@@ -8,6 +9,7 @@ import {
 import { useTaskStore } from '../task-management/task-store';
 import { useBlockingStore } from './blocking-store';
 import { useSettingsStore } from '../settings/settings-store';
+import { useCalendarStore } from '../calendar-tracking/calendar-store';
 import { getAlignedDate } from '../shared/date-utils';
 import type { BlockingState } from './blocking-types';
 import type { OverlayConfig } from '../native-bridge/native-bridge-types';
@@ -142,7 +144,8 @@ export async function handleBlockedAppDetected(
 
 /**
  * Called when the user confirms an override on the blocking overlay.
- * Logs the override event to the database (fully wired in #39).
+ * Persists the override event, updates the DailyRecord override_count,
+ * and triggers a calendar store refresh so the UI reactively updates.
  */
 export async function handleOverrideConfirmed(
   packageName: string,
@@ -158,6 +161,8 @@ export async function handleOverrideConfirmed(
   );
 
   const db = await getDatabase();
+
+  // Persist the override event
   await overrideEventRepository.create(db, {
     packageName,
     appName,
@@ -166,4 +171,10 @@ export async function handleOverrideConfirmed(
     activeScheduleId: null,
     taskContext,
   });
+
+  // Recalculate DailyRecord (override_count, status) for the aligned date
+  await dailyRecordService.updateDailyRecord(db, alignedDate);
+
+  // Refresh calendar store so UI updates reactively
+  await useCalendarStore.getState().refreshToday();
 }

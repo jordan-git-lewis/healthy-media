@@ -49,6 +49,17 @@ jest.mock('../../src/settings/settings-store', () => ({
   },
 }));
 
+const mockRefreshToday = jest.fn();
+jest.mock('../../src/calendar-tracking/calendar-store', () => ({
+  useCalendarStore: {
+    getState: jest.fn(() => ({ refreshToday: mockRefreshToday })),
+  },
+}));
+
+jest.mock('../../src/calendar-tracking/daily-record-service', () => ({
+  updateDailyRecord: jest.fn(),
+}));
+
 // expo-crypto mock
 jest.mock('expo-crypto', () => ({
   randomUUID: jest.fn(() => 'mock-uuid'),
@@ -62,8 +73,10 @@ import {
 import { useTaskStore } from '../../src/task-management/task-store';
 import { useBlockingStore } from '../../src/app-blocking/blocking-store';
 import { useSettingsStore } from '../../src/settings/settings-store';
+import { useCalendarStore } from '../../src/calendar-tracking/calendar-store';
 import { showBlockingOverlay } from '../../src/native-bridge';
 import * as overrideEventRepository from '../../src/database/repositories/override-event-repository';
+import * as dailyRecordService from '../../src/calendar-tracking/daily-record-service';
 import { getDatabase } from '../../src/database/database';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { GoalTask, TimeSchedule } from '../../src/task-management/task-types';
@@ -73,6 +86,7 @@ import type { BlockedApp } from '../../src/app-blocking/blocking-types';
 const mockGetDatabase = getDatabase as jest.MockedFunction<typeof getDatabase>;
 const mockShowBlockingOverlay = showBlockingOverlay as jest.MockedFunction<typeof showBlockingOverlay>;
 const mockOverrideRepo = overrideEventRepository as jest.Mocked<typeof overrideEventRepository>;
+const mockDailyRecordService = dailyRecordService as jest.Mocked<typeof dailyRecordService>;
 const mockTaskStore = useTaskStore as jest.Mocked<typeof useTaskStore>;
 const mockBlockingStore = useBlockingStore as jest.Mocked<typeof useBlockingStore>;
 const mockSettingsStore = useSettingsStore as jest.Mocked<typeof useSettingsStore>;
@@ -325,6 +339,8 @@ describe('handleOverrideConfirmed', () => {
       taskContext: null,
     };
     mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockRefreshToday.mockResolvedValueOnce(undefined);
 
     await handleOverrideConfirmed(
       'com.instagram.android',
@@ -363,6 +379,8 @@ describe('handleOverrideConfirmed', () => {
       taskContext: null,
     };
     mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockRefreshToday.mockResolvedValueOnce(undefined);
 
     await handleOverrideConfirmed(
       'com.instagram.android',
@@ -376,5 +394,60 @@ describe('handleOverrideConfirmed', () => {
       { name: 'Exercise', completed: true },
       { name: 'Read', completed: false },
     ]);
+  });
+
+  it('calls updateDailyRecord after creating override event', async () => {
+    setupDefaultStores({
+      goalTasks: [makeGoalTask({ isCompleted: true })],
+    });
+
+    const fakeEvent = {
+      id: 'mock-uuid',
+      packageName: 'com.instagram.android',
+      appName: 'Instagram',
+      timestamp: '2026-02-22T20:30:00.000Z',
+      date: '2026-02-22',
+      activeScheduleId: null,
+      taskContext: null,
+    };
+    mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockRefreshToday.mockResolvedValueOnce(undefined);
+
+    await handleOverrideConfirmed(
+      'com.instagram.android',
+      'Instagram',
+      '2026-02-22T20:30:00.000Z'
+    );
+
+    expect(mockDailyRecordService.updateDailyRecord).toHaveBeenCalledWith(
+      mockDb,
+      '2026-02-22'
+    );
+  });
+
+  it('calls calendarStore.refreshToday() after updating daily record', async () => {
+    setupDefaultStores({ goalTasks: [] });
+
+    const fakeEvent = {
+      id: 'mock-uuid',
+      packageName: 'com.instagram.android',
+      appName: 'Instagram',
+      timestamp: '2026-02-22T20:30:00.000Z',
+      date: '2026-02-22',
+      activeScheduleId: null,
+      taskContext: null,
+    };
+    mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockRefreshToday.mockResolvedValueOnce(undefined);
+
+    await handleOverrideConfirmed(
+      'com.instagram.android',
+      'Instagram',
+      '2026-02-22T20:30:00.000Z'
+    );
+
+    expect(mockRefreshToday).toHaveBeenCalledTimes(1);
   });
 });
