@@ -11,4 +11,6 @@ export type { InstalledApp } from './blocking-store';
 export {
   syncBlockedAppsToNative,
   evaluateBlockingState,
+  handleBlockedAppDetected,
+  handleOverrideConfirmed,
 } from './blocking-service';

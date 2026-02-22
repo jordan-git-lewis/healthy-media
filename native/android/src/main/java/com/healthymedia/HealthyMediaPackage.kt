@@ -10,9 +10,11 @@ import com.facebook.react.uimanager.ViewManager
  *
  * Module registration follows the sequential build order defined in the
  * native bridge implementation plan (TDD §4):
- *   1. AppScannerModule   — queries installed user apps
- *   2. PermissionHelper   — UsageStats, Overlay, Battery permission checks/requests
+ *   1. AppScannerModule          — queries installed user apps
+ *   2. PermissionHelper          — UsageStats, Overlay, Battery permission checks/requests
  *   3. BatteryOptimizationHelper — OEM battery settings detection and navigation
+ *   4. MonitoringServiceModule   — foreground service management (IPC bridge)
+ *   5. OverlayManagerModule      — SYSTEM_ALERT_WINDOW blocking overlay
  */
 class HealthyMediaPackage : ReactPackage {
 
@@ -21,6 +23,8 @@ class HealthyMediaPackage : ReactPackage {
             AppScannerModule(reactContext),
             PermissionHelper(reactContext),
             BatteryOptimizationHelper(reactContext),
+            MonitoringServiceModule(reactContext),
+            OverlayManagerModule(reactContext),
         )
     }
 

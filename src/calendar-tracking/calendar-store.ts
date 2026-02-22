@@ -2,7 +2,9 @@ import { create } from 'zustand';
 import type { DailyRecord, DailyStatus } from './calendar-types';
 import { getDatabase } from '../database/database';
 import * as calendarService from './calendar-service';
-import { formatDate } from '../shared/date-utils';
+import * as dailyRecordService from './daily-record-service';
+import { formatDate, getAlignedDate } from '../shared/date-utils';
+import { useSettingsStore } from '../settings/settings-store';
 
 interface CalendarState {
   currentYear: number;
@@ -13,6 +15,7 @@ interface CalendarState {
   error: string | null;
   loadMonth: (year: number, month: number) => Promise<void>;
   refreshToday: () => Promise<void>;
+  refreshTodayOverrideCount: () => Promise<void>;
   navigateMonth: (delta: number) => Promise<void>;
 }
 
@@ -72,6 +75,24 @@ export const useCalendarStore = create<CalendarState>((set, get) => {
         set({
           error:
             error instanceof Error ? error.message : 'Failed to refresh today',
+        });
+      }
+    },
+
+    async refreshTodayOverrideCount() {
+      try {
+        const db = await getDatabase();
+        const dayResetTime =
+          useSettingsStore.getState().settings?.dayResetTime ?? '00:00';
+        const alignedDate = getAlignedDate(new Date(), dayResetTime);
+        await dailyRecordService.updateDailyRecord(db, alignedDate);
+        await get().refreshToday();
+      } catch (error) {
+        set({
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to refresh today override count',
         });
       }
     },
