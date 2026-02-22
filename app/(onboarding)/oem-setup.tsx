@@ -95,7 +95,7 @@ export default function OEMSetupScreen() {
           testID="battery-recheck-banner"
         >
           Battery optimization is still active. Please follow the steps below
-          and tap "Open Settings" so Healthy Media can protect your focus time.
+          and tap &quot;Open Settings&quot; so Healthy Media can protect your focus time.
         </Banner>
       )}
 
