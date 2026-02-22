@@ -55,8 +55,6 @@ export async function evaluateBlockingState(): Promise<BlockingState> {
   const { timeSchedules, goalTasks, successThreshold } = useTaskStore.getState();
 
   const now = new Date();
-  const dayResetTime = useSettingsStore.getState().settings?.dayResetTime ?? '00:00';
-  const _today = getAlignedDate(now, dayResetTime); // used for context
 
   // --- Time schedule check ---
   const currentHour = now.getHours();

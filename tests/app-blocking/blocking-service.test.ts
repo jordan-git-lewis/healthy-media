@@ -73,14 +73,13 @@ import {
 import { useTaskStore } from '../../src/task-management/task-store';
 import { useBlockingStore } from '../../src/app-blocking/blocking-store';
 import { useSettingsStore } from '../../src/settings/settings-store';
-import { useCalendarStore } from '../../src/calendar-tracking/calendar-store';
 import { showBlockingOverlay } from '../../src/native-bridge';
 import * as overrideEventRepository from '../../src/database/repositories/override-event-repository';
 import * as dailyRecordService from '../../src/calendar-tracking/daily-record-service';
 import { getDatabase } from '../../src/database/database';
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { GoalTask, TimeSchedule } from '../../src/task-management/task-types';
-import type { SuccessThreshold } from '../../src/calendar-tracking/calendar-types';
+import type { SuccessThreshold, DailyRecord } from '../../src/calendar-tracking/calendar-types';
 import type { BlockedApp } from '../../src/app-blocking/blocking-types';
 
 const mockGetDatabase = getDatabase as jest.MockedFunction<typeof getDatabase>;
@@ -148,6 +147,22 @@ function makeBlockedApp(overrides: Partial<BlockedApp> = {}): BlockedApp {
   };
 }
 
+function makeDailyRecord(overrides: Partial<DailyRecord> = {}): DailyRecord {
+  return {
+    id: 'record-1',
+    date: '2026-02-22',
+    goalTasksCompleted: 0,
+    goalTasksTotal: 0,
+    successThreshold: 0,
+    overrideCount: 0,
+    timeScheduleAdherence: 1,
+    status: 'not_met',
+    createdAt: '2026-02-22T00:00:00.000Z',
+    updatedAt: '2026-02-22T00:00:00.000Z',
+    ...overrides,
+  };
+}
+
 function setupDefaultStores({
   globalBlockingEnabled = true,
   goalTasks = [] as GoalTask[],
@@ -195,9 +210,11 @@ describe('evaluateBlockingState', () => {
   it('returns isBlocking: true with reason time_schedule during active schedule', async () => {
     // Mock the current time to 20:30 on a Sunday (day 0)
     const mockDate = new Date('2026-02-22T20:30:00');
-    jest.spyOn(global, 'Date').mockImplementation((arg?: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jest.spyOn(global, 'Date').mockImplementation((arg?: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (arg !== undefined) return new (jest.requireActual('Date') as any)(arg) as Date;
-      return mockDate as any;
+      return mockDate as Date;
     });
 
     setupDefaultStores({
@@ -215,9 +232,11 @@ describe('evaluateBlockingState', () => {
 
   it('returns isBlocking: false when schedule is inactive', async () => {
     const mockDate = new Date('2026-02-22T20:30:00');
-    jest.spyOn(global, 'Date').mockImplementation((arg?: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jest.spyOn(global, 'Date').mockImplementation((arg?: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (arg !== undefined) return new (jest.requireActual('Date') as any)(arg) as Date;
-      return mockDate as any;
+      return mockDate as Date;
     });
 
     setupDefaultStores({
@@ -266,9 +285,11 @@ describe('evaluateBlockingState', () => {
 describe('handleBlockedAppDetected', () => {
   it('shows overlay for hard_block app when blocking is active', async () => {
     const mockDate = new Date('2026-02-22T20:30:00');
-    jest.spyOn(global, 'Date').mockImplementation((arg?: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    jest.spyOn(global, 'Date').mockImplementation((arg?: unknown) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (arg !== undefined) return new (jest.requireActual('Date') as any)(arg) as Date;
-      return mockDate as any;
+      return mockDate as Date;
     });
 
     setupDefaultStores({
@@ -339,7 +360,7 @@ describe('handleOverrideConfirmed', () => {
       taskContext: null,
     };
     mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
-    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce(makeDailyRecord());
     mockRefreshToday.mockResolvedValueOnce(undefined);
 
     await handleOverrideConfirmed(
@@ -379,7 +400,7 @@ describe('handleOverrideConfirmed', () => {
       taskContext: null,
     };
     mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
-    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce(makeDailyRecord());
     mockRefreshToday.mockResolvedValueOnce(undefined);
 
     await handleOverrideConfirmed(
@@ -411,7 +432,7 @@ describe('handleOverrideConfirmed', () => {
       taskContext: null,
     };
     mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
-    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce(makeDailyRecord());
     mockRefreshToday.mockResolvedValueOnce(undefined);
 
     await handleOverrideConfirmed(
@@ -439,7 +460,7 @@ describe('handleOverrideConfirmed', () => {
       taskContext: null,
     };
     mockOverrideRepo.create.mockResolvedValueOnce(fakeEvent);
-    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce({} as any);
+    mockDailyRecordService.updateDailyRecord.mockResolvedValueOnce(makeDailyRecord());
     mockRefreshToday.mockResolvedValueOnce(undefined);
 
     await handleOverrideConfirmed(
