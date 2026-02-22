@@ -1,3 +1,4 @@
+import type { SQLiteDatabase } from 'expo-sqlite';
 import type { DailyRecord, DailyStatus } from '../../src/calendar-tracking/calendar-types';
 
 jest.mock('../../src/shared/uuid-utils', () => ({
@@ -22,7 +23,7 @@ import { useCalendarStore } from '../../src/calendar-tracking/calendar-store';
 const mockGetDatabase = getDatabase as jest.MockedFunction<typeof getDatabase>;
 const mockCalendarService = calendarService as jest.Mocked<typeof calendarService>;
 
-const mockDb = {} as any;
+const mockDb = {} as SQLiteDatabase;
 
 const sampleRecord = (date: string, status: DailyStatus = 'full_success'): DailyRecord => ({
   id: `rec-${date}`,

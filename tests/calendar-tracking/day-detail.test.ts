@@ -1,4 +1,5 @@
-import type { DayDetail, DailyRecord } from '../../src/calendar-tracking/calendar-types';
+import type { SQLiteDatabase } from 'expo-sqlite';
+import type { DailyRecord } from '../../src/calendar-tracking/calendar-types';
 import type { GoalTask, TimeSchedule } from '../../src/task-management/task-types';
 
 jest.mock('../../src/shared/uuid-utils', () => ({
@@ -28,7 +29,7 @@ const mockOverrideRepo = overrideEventRepository as jest.Mocked<typeof overrideE
 const mockTimeScheduleRepo = timeScheduleRepository as jest.Mocked<typeof timeScheduleRepository>;
 const mockDailyRecordService = dailyRecordService as jest.Mocked<typeof dailyRecordService>;
 
-const mockDb = {} as any;
+const mockDb = {} as SQLiteDatabase;
 
 function makeRecord(overrides: Partial<DailyRecord> = {}): DailyRecord {
   return {

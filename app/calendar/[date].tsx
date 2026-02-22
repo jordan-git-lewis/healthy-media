@@ -9,7 +9,7 @@ import {
   Divider,
   List,
 } from 'react-native-paper';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import type { DayDetail, DailyStatus } from '../../src/calendar-tracking/calendar-types';
 import * as calendarService from '../../src/calendar-tracking/calendar-service';
 import { getDatabase } from '../../src/database/database';

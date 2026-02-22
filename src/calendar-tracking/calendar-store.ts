@@ -65,7 +65,7 @@ export const useCalendarStore = create<CalendarState>((set, get) => {
 
         // Also refresh the record for today in the map
         const today = formatDate(new Date());
-        const { currentYear, currentMonth, dailyRecords } = get();
+        const { currentYear, currentMonth } = get();
         const todayYear = parseInt(today.slice(0, 4), 10);
         const todayMonth = parseInt(today.slice(5, 7), 10);
         if (todayYear === currentYear && todayMonth === currentMonth) {

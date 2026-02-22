@@ -208,7 +208,7 @@ describe('updateDailyRecord', () => {
       sampleRecord({ status: 'full_success' })
     );
 
-    const result = await updateDailyRecord(mockDb, '2026-02-20');
+    await updateDailyRecord(mockDb, '2026-02-20');
 
     // With no tasks (time-only day) and no overrides, adherence=1 => full_success
     expect(mockDailyRecordRepo.upsert).toHaveBeenCalledWith(

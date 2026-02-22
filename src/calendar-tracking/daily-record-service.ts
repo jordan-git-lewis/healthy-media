@@ -6,7 +6,6 @@ import * as successThresholdRepository from '../database/repositories/success-th
 import * as overrideEventRepository from '../database/repositories/override-event-repository';
 import { getAlignedDate } from '../shared/date-utils';
 import { useSettingsStore } from '../settings/settings-store';
-import { generateId } from '../shared/uuid-utils';
 
 function computeStatus(
   goalTasksCompleted: number,
