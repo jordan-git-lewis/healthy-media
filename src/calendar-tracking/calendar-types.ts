@@ -30,3 +30,17 @@ export interface DailyRecord {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface DayDetail {
+  date: string;
+  record: DailyRecord;
+  overrideEvents: Array<{ appName: string; packageName: string; timestamp: string }>;
+  goalTasks: import('../task-management/task-types').GoalTask[];
+  timeSchedules: import('../task-management/task-types').TimeSchedule[];
+}
+
+export interface CalendarMonth {
+  year: number;
+  month: number;
+  records: DailyRecord[];
+}
