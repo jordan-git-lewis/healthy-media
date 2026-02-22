@@ -1,10 +1,6 @@
-import { ConfigPlugin, withAndroidManifest } from '@expo/config-plugins';
-import type { AndroidConfig } from '@expo/config-plugins';
+const { withAndroidManifest } = require('@expo/config-plugins');
 
-type ManifestUsesPermission = AndroidConfig.Manifest.ManifestUsesPermission;
-type ManifestApplication = AndroidConfig.Manifest.ManifestApplication;
-
-const PERMISSIONS: string[] = [
+const PERMISSIONS = [
   'android.permission.PACKAGE_USAGE_STATS',
   'android.permission.SYSTEM_ALERT_WINDOW',
   'android.permission.FOREGROUND_SERVICE',
@@ -15,13 +11,8 @@ const PERMISSIONS: string[] = [
 /**
  * Ensures a permission is present without duplicating it. Idempotent.
  */
-function addPermissionIfMissing(
-  permissions: ManifestUsesPermission[],
-  permissionName: string
-): ManifestUsesPermission[] {
-  const exists = permissions.some(
-    (p) => p.$['android:name'] === permissionName
-  );
+function addPermissionIfMissing(permissions, permissionName) {
+  const exists = permissions.some((p) => p.$['android:name'] === permissionName);
   if (exists) return permissions;
   return [...permissions, { $: { 'android:name': permissionName } }];
 }
@@ -39,7 +30,7 @@ function addPermissionIfMissing(
  * - MonitoringService with android:process=":monitoring"
  * - BootReceiver with BOOT_COMPLETED intent filter
  */
-const withHealthyMedia: ConfigPlugin = (config) => {
+const withHealthyMedia = (config) => {
   return withAndroidManifest(config, (androidConfig) => {
     const manifest = androidConfig.modResults.manifest;
 
@@ -51,7 +42,7 @@ const withHealthyMedia: ConfigPlugin = (config) => {
     // Add all required permissions (idempotently)
     for (const permission of PERMISSIONS) {
       manifest['uses-permission'] = addPermissionIfMissing(
-        manifest['uses-permission']!,
+        manifest['uses-permission'],
         permission
       );
     }
@@ -59,9 +50,7 @@ const withHealthyMedia: ConfigPlugin = (config) => {
     // Ensure application array exists and has at least one entry
     if (!manifest.application || manifest.application.length === 0) {
       manifest.application = [
-        {
-          $: { 'android:name': '.MainApplication', 'android:label': '@string/app_name' },
-        } as ManifestApplication,
+        { $: { 'android:name': '.MainApplication', 'android:label': '@string/app_name' } },
       ];
     }
 
@@ -78,10 +67,7 @@ const withHealthyMedia: ConfigPlugin = (config) => {
       (s) => s.$['android:name'] === monitoringServiceName
     );
     if (!hasMonitoringService) {
-      // Cast to any to allow android:process which is a valid manifest attribute
-      // but not declared in the narrow ManifestServiceAttributes type.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (application.service as any[]).push({
+      application.service.push({
         $: {
           'android:name': monitoringServiceName,
           'android:process': ':monitoring',
@@ -108,11 +94,7 @@ const withHealthyMedia: ConfigPlugin = (config) => {
         },
         'intent-filter': [
           {
-            action: [
-              {
-                $: { 'android:name': 'android.intent.action.BOOT_COMPLETED' },
-              },
-            ],
+            action: [{ $: { 'android:name': 'android.intent.action.BOOT_COMPLETED' } }],
           },
         ],
       });
@@ -122,4 +104,4 @@ const withHealthyMedia: ConfigPlugin = (config) => {
   });
 };
 
-export default withHealthyMedia;
+module.exports = withHealthyMedia;
