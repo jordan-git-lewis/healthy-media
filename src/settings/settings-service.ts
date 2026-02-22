@@ -15,6 +15,21 @@ export async function updateDayResetTime(
   return userSettingsRepository.update(db, { dayResetTime: time });
 }
 
+export async function updateSurveyResponse(
+  db: SQLiteDatabase,
+  response: string
+): Promise<UserSettings> {
+  return userSettingsRepository.update(db, {
+    onboardingSurveyResponse: response,
+  });
+}
+
+export async function completeOnboarding(
+  db: SQLiteDatabase
+): Promise<UserSettings> {
+  return userSettingsRepository.update(db, { onboardingCompleted: true });
+}
+
 export async function setGlobalBlocking(
   db: SQLiteDatabase,
   enabled: boolean,

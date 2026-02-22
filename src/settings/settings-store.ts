@@ -11,6 +11,8 @@ interface SettingsState {
   loadSettings: () => Promise<void>;
   updateDayResetTime: (time: string) => Promise<void>;
   toggleGlobalBlocking: (enabled: boolean) => Promise<void>;
+  updateSurveyResponse: (response: string) => Promise<void>;
+  completeOnboarding: () => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
@@ -73,6 +75,38 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
           error instanceof Error
             ? error.message
             : 'Failed to toggle global blocking',
+      });
+    }
+  },
+
+  async updateSurveyResponse(response: string) {
+    set({ error: null });
+    try {
+      const db = await getDatabase();
+      const settings = await settingsService.updateSurveyResponse(db, response);
+      set({ settings });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to save survey response',
+      });
+    }
+  },
+
+  async completeOnboarding() {
+    set({ error: null });
+    try {
+      const db = await getDatabase();
+      const settings = await settingsService.completeOnboarding(db);
+      set({ settings });
+    } catch (error) {
+      set({
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Failed to complete onboarding',
       });
     }
   },
