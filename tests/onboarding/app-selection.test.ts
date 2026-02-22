@@ -16,13 +16,9 @@ jest.mock('../../src/app-blocking/blocking-store', () => ({
 }));
 
 import { scanInstalledApps } from '../../src/native-bridge';
-import { useBlockingStore } from '../../src/app-blocking/blocking-store';
 import { NativeBridgeError } from '../../src/shared/error-types';
 
 const mockScan = scanInstalledApps as jest.MockedFunction<typeof scanInstalledApps>;
-const mockUseBlockingStore = useBlockingStore as unknown as jest.MockedFunction<
-  () => ReturnType<typeof useBlockingStore>
->;
 
 const makeInstalledApp = (overrides: Partial<InstalledApp> = {}): InstalledApp => ({
   packageName: 'com.example.app',
