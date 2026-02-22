@@ -54,3 +54,28 @@ export async function openOEMPowerSettings(): Promise<boolean> {
   warn('openOEMPowerSettings');
   return false;
 }
+
+/** Represents a user-installed application returned by AppScannerModule. */
+export interface InstalledApp {
+  packageName: string;
+  appName: string;
+  iconUri: string;
+}
+
+/**
+ * Returns all user-installed applications visible to PackageManager.
+ * Stub: returns an empty array in non-native environments.
+ */
+export async function scanInstalledApps(): Promise<InstalledApp[]> {
+  warn('scanInstalledApps');
+  return [];
+}
+
+/**
+ * Sends the current list of blocked package names to the native monitoring
+ * service. Stub: no-op in non-native environments.
+ */
+export async function updateBlockedApps(packages: string[]): Promise<void> {
+  warn('updateBlockedApps');
+  void packages;
+}
