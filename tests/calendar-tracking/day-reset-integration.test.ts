@@ -5,6 +5,7 @@
  * getAlignedDate() based on the user's configured dayResetTime.
  */
 
+import type { SQLiteDatabase } from 'expo-sqlite';
 import type { DailyRecord } from '../../src/calendar-tracking/calendar-types';
 
 jest.mock('../../src/shared/uuid-utils', () => ({
@@ -37,7 +38,7 @@ const mockGoalTaskRepo = goalTaskRepository as jest.Mocked<typeof goalTaskReposi
 const mockThresholdRepo = successThresholdRepository as jest.Mocked<typeof successThresholdRepository>;
 const mockOverrideRepo = overrideEventRepository as jest.Mocked<typeof overrideEventRepository>;
 
-const mockDb = {} as any;
+const mockDb = {} as SQLiteDatabase;
 
 function makeRecord(date: string, overrides: Partial<DailyRecord> = {}): DailyRecord {
   return {
