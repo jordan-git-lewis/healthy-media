@@ -48,6 +48,24 @@ const BatteryOptimizationHelperModule = NativeModules.BatteryOptimizationHelper 
   openOEMPowerSettings: () => Promise<boolean>;
 };
 
+const MonitoringServiceModule = NativeModules.MonitoringServiceModule as {
+  startMonitoringService: (packages: string[], intervalMs: number) => Promise<void>;
+  stopMonitoringService: () => Promise<void>;
+  isMonitoringServiceRunning: () => Promise<boolean>;
+  updateBlockedApps: (packages: string[]) => Promise<void>;
+};
+
+const OverlayManagerModule = NativeModules.OverlayManagerModule as {
+  showBlockingOverlay: (
+    appName: string,
+    packageName: string,
+    taskProgressJson: string | null,
+    timeRemainingJson: string | null,
+    enforcementLevel: string
+  ) => Promise<void>;
+  dismissBlockingOverlay: () => Promise<void>;
+};
+
 // ---------------------------------------------------------------------------
 // App Scanning
 // ---------------------------------------------------------------------------
@@ -73,16 +91,25 @@ export async function scanInstalledApps(): Promise<InstalledApp[]> {
 /**
  * Starts the foreground monitoring service with the given configuration.
  *
+ * Validates permissions before starting — throws PermissionError if
+ * UsageStats permission has not been granted.
+ *
  * @param config - Blocked packages and polling interval.
+ * @throws {PermissionError} if UsageStats permission is not granted.
  * @throws {NativeBridgeError} if the service cannot be started.
  */
 export async function startMonitoringService(config: MonitoringConfig): Promise<void> {
   try {
-    // Native implementation provided in a later parent issue.
-    // Placeholder: passes config to the future MonitoringModule.
-    void config;
-    throw new Error('MonitoringModule not yet implemented');
+    await MonitoringServiceModule.startMonitoringService(
+      config.blockedPackages,
+      config.pollingIntervalMs
+    );
   } catch (cause) {
+    if (cause instanceof PermissionError) throw cause;
+    const err = cause as { code?: string; message?: string };
+    if (err?.code === 'PERMISSION_ERROR') {
+      throw new PermissionError(err.message ?? 'Permission required to start monitoring service', { cause });
+    }
     throw new NativeBridgeError('Failed to start monitoring service', { cause });
   }
 }
@@ -90,11 +117,11 @@ export async function startMonitoringService(config: MonitoringConfig): Promise<
 /**
  * Stops the foreground monitoring service.
  *
- * @throws {NativeBridgeError} if the service cannot be stopped.
+ * @throws {NativeBridgeError} if the service is not running or cannot be stopped.
  */
 export async function stopMonitoringService(): Promise<void> {
   try {
-    throw new Error('MonitoringModule not yet implemented');
+    await MonitoringServiceModule.stopMonitoringService();
   } catch (cause) {
     throw new NativeBridgeError('Failed to stop monitoring service', { cause });
   }
@@ -107,7 +134,7 @@ export async function stopMonitoringService(): Promise<void> {
  */
 export async function isMonitoringServiceRunning(): Promise<boolean> {
   try {
-    throw new Error('MonitoringModule not yet implemented');
+    return await MonitoringServiceModule.isMonitoringServiceRunning();
   } catch (cause) {
     throw new NativeBridgeError('Failed to query monitoring service state', { cause });
   }
@@ -121,8 +148,7 @@ export async function isMonitoringServiceRunning(): Promise<boolean> {
  */
 export async function updateBlockedApps(packages: string[]): Promise<void> {
   try {
-    void packages;
-    throw new Error('MonitoringModule not yet implemented');
+    await MonitoringServiceModule.updateBlockedApps(packages);
   } catch (cause) {
     throw new NativeBridgeError('Failed to update blocked apps', { cause });
   }
@@ -136,13 +162,24 @@ export async function updateBlockedApps(packages: string[]): Promise<void> {
  * Shows the blocking overlay with the given configuration.
  *
  * @param config - Overlay content and enforcement level.
+ * @throws {PermissionError} if SYSTEM_ALERT_WINDOW permission is not granted.
  * @throws {NativeBridgeError} if the overlay cannot be shown.
  */
 export async function showBlockingOverlay(config: OverlayConfig): Promise<void> {
   try {
-    void config;
-    throw new Error('OverlayModule not yet implemented');
+    await OverlayManagerModule.showBlockingOverlay(
+      config.appName,
+      config.packageName,
+      config.taskProgress !== null ? JSON.stringify(config.taskProgress) : null,
+      config.timeRemaining !== null ? JSON.stringify(config.timeRemaining) : null,
+      config.enforcementLevel
+    );
   } catch (cause) {
+    if (cause instanceof PermissionError) throw cause;
+    const err = cause as { code?: string; message?: string };
+    if (err?.code === 'PERMISSION_ERROR') {
+      throw new PermissionError(err.message ?? 'Overlay permission required', { cause });
+    }
     throw new NativeBridgeError('Failed to show blocking overlay', { cause });
   }
 }
@@ -154,7 +191,7 @@ export async function showBlockingOverlay(config: OverlayConfig): Promise<void> 
  */
 export async function dismissBlockingOverlay(): Promise<void> {
   try {
-    throw new Error('OverlayModule not yet implemented');
+    await OverlayManagerModule.dismissBlockingOverlay();
   } catch (cause) {
     throw new NativeBridgeError('Failed to dismiss blocking overlay', { cause });
   }
