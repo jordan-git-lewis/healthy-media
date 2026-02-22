@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Blocking overlay layout for Healthy Media.
+
+  Displayed over all apps via SYSTEM_ALERT_WINDOW (TYPE_APPLICATION_OVERLAY).
+  Contains:
+    - App name text (which app is being blocked)
+    - Task progress row (X of Y tasks done) — shown when taskProgress is provided
+    - Time remaining row (1h 23m left)      — shown when timeRemaining is provided
+    - SlideToConfirmView                    — left-to-right swipe to override
+-->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlay_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:background="#CC000000">
+
+    <!-- App name -->
+    <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:text="App Blocked" />
+
+    <TextView
+        android:id="@+id/tv_blocked_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:textColor="#BBFFFFFF"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:text="is blocked right now" />
+
+    <!-- Task progress row (hidden by default) -->
+    <LinearLayout
+        android:id="@+id/row_task_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_task_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:text="✓" />
+
+        <TextView
+            android:id="@+id/tv_task_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:text="0 of 0 tasks done" />
+    </LinearLayout>
+
+    <!-- Time remaining row (hidden by default) -->
+    <LinearLayout
+        android:id="@+id/row_time_remaining"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_time_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:text="⏱" />
+
+        <TextView
+            android:id="@+id/tv_time_remaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:text="0m left" />
+    </LinearLayout>
+
+    <!-- Slide-to-confirm bar -->
+    <com.healthymedia.SlideToConfirmView
+        android:id="@+id/slide_to_confirm"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/tv_slide_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textColor="#88FFFFFF"
+        android:textSize="13sp"
+        android:gravity="center"
+        android:text="Slide to override" />
+
+</LinearLayout>
